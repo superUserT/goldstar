@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Recipe Recommender</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result {
+            white-space: pre-wrap;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChatGPT Recipe Recommender</h1>
+    <p>Enter the ingredients you have, separated by commas:</p>
+    <input type="text" id="ingredients" size="50">
+    <button onclick="getRecipe()">Get Recipe</button>
+    <p id="result"></p>
+
+    <script>
+        async function getRecipe() {
+            const ingredients = document.getElementById('ingredients').value;
+            const resultElement = document.getElementById('result');
+            
+            if (!ingredients) {
+                resultElement.textContent = "Please enter at least one ingredient.";
+                return;
+            }
+
+            resultElement.textContent = "Getting recipe recommendation...";
+
+            const OPENAI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
+            
+            try {
+                const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                    model: "gpt-3.5-turbo",
+                    messages: [
+                        {"role": "system", "content": "You are a helpful assistant that suggests recipes based on available ingredients."},
+                        {"role": "user", "content": `Suggest a recipe using these ingredients: ${ingredients}. Please provide the recipe name, ingredients list, and brief instructions.`}
+                    ]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const recipe = response.data.choices[0].message.content;
+                resultElement.textContent = recipe;
+            } catch (error) {
+                resultElement.textContent = `An error occurred: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
